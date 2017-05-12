@@ -148,6 +148,63 @@ class TestActionsSwitcher(unittest.TestCase):
         self.assertTrue(response)
         self.assertEqual(self.mock_client.send.call_count, 2)
 
+    def test_active_user_list(self):
+        self.mock_client.send.reset_mock()
+        response = self.controller.execute_message(
+            client=self.mock_client,
+            message='{"action": "register", "data": {"username": "test_active_user_list", "password": "12345678"} }'
+        )
+        self.assertTrue(response)
+        self.mock_client.send.reset_mock()
+        response = self.controller.execute_message(
+            client=self.mock_client,
+            message='{"action": "login", "data": {"username": "test_active_user_list", "password": "12345678"} }'
+        )
+        self.assertTrue(response)
+        self.assertEqual(self.mock_client.send.call_count, 2)
+
+        self.mock_client_2.send.reset_mock()
+        response = self.controller.execute_message(
+            client=self.mock_client_2,
+            message='{"action": "register", "data": {"username": "test_active_user_list_2", "password": "12345678"} }'
+        )
+        self.assertTrue(response)
+        self.mock_client_2.send.reset_mock()
+        response = self.controller.execute_message(
+            client=self.mock_client_2,
+            message='{"action": "login", "data": {"username": "test_active_user_list_2", "password": "12345678"} }'
+        )
+        self.assertTrue(response)
+        self.assertEqual(self.mock_client_2.send.call_count, 3)
+
+        ### seconds clients... same users
+        mock_client_11 = MagicMock()
+        mock_client_11.send.reset_mock()
+        mock_client_21 = MagicMock()
+        mock_client_21.send.reset_mock()
+        closed_property = PropertyMock(return_value=False)
+        type(mock_client_11).closed = closed_property
+        type(mock_client_21).closed = closed_property
+        mock_client_11.send = Mock()
+        mock_client_21.send = Mock()
+
+        response = self.controller.execute_message(
+            client=mock_client_11,
+            message='{"action": "login", "data": {"username": "test_active_user_list", "password": "12345678"} }'
+        )
+        self.assertTrue(response)
+        self.assertEqual(mock_client_11.send.call_count, 3)
+
+        response = self.controller.execute_message(
+            client=mock_client_21,
+            message='{"action": "login", "data": {"username": "test_active_user_list_2", "password": "12345678"} }'
+        )
+        self.assertTrue(response)
+        self.assertEqual(mock_client_21.send.call_count, 3)
+
+        active_user_list = self.controller.user_manager.active_user_list
+        self.assertEqual(len(active_user_list), 2)
+
     def test_challenge_action(self):
         response = self.controller.execute_message(
             client=self.mock_client,
