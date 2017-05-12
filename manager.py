@@ -115,7 +115,7 @@ class PlayingBoard(object):
         if not redis_pool.exists(PlayingBoard._board_id(board_id)):
             raise InvalidBoardIdException()
 
-        board_string = self.redis_pool.get(self._user_id())
+        board_string = redis_pool.get(PlayingBoard._board_id(board_id))
         board_dict = ujson.loads(board_string)
         board = PlayingBoard(
             redis_pool,

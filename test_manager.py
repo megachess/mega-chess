@@ -73,5 +73,21 @@ class TestChessManager(unittest.TestCase):
         self.assertIsNotNone(third_turn_token)
         self.assertEqual(actual_turn_color, WHITE)
 
+    def test_recover_board(self):
+        board_id = self.manager.challenge('user1', 'user2')
+        first_turn_token, white_username, actual_turn_color, board = self.manager.challenge_accepted(board_id)
+        # initial board turn should be WHITE
+        self.assertEqual(actual_turn_color, WHITE)
+        # move WHITE with token
+        second_turn_token, black_username, actual_turn_color, board = self.manager.move_with_turn_token(first_turn_token, 12, 3, 11, 3)
+        # second board turn should be BLACK
+        self.assertEqual(actual_turn_color, BLACK)
+        # simulate restart server...
+        self.manager.boards.clear()
+        # move BLACK with token
+        third_turn_token, white_username, actual_turn_color, board = self.manager.move_with_turn_token(second_turn_token, 3, 3, 4, 3)
+        self.assertIsNotNone(third_turn_token)
+        self.assertEqual(actual_turn_color, WHITE)
+
 if __name__ == '__main__':
     unittest.main()
