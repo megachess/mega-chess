@@ -44,6 +44,9 @@
         }
 
         var graph_pieces = []
+        service.onopen = function() {
+            send('subscribe', { board_id:board_id });
+        }
 
         service.onmessage = function(message) {
           console.log(message.data)
@@ -126,7 +129,6 @@
             white_score = game.add.text(
                 600, 540, 'white_score', { font: '16px Arial', fill: '#ffffff' }
             );
-            send('subscribe', { board_id:board_id });
 
         }
 
